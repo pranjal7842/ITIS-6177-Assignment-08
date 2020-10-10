@@ -34,6 +34,7 @@ const pool = mariadb.createPool({
     connectionLimit: 5
 });
 
+// Swagger Definitions
 /**
  * @swagger
  *
@@ -226,11 +227,13 @@ app.get('/companies', async function(req, res){
  *         description: "Error"
  */
 app.post('/company', [
+  // Validate and Sanitize input
   body('COMPANY_ID').not().isEmpty().trim().escape(),
   body('COMPANY_NAME').not().isEmpty().trim().escape(),
   body('COMPANY_CITY').not().isEmpty().trim().escape()
 ], async function(req, res){
     res.header('Content-Type','application/json');
+	// Validate and Sanitize input
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() });
@@ -278,10 +281,12 @@ app.post('/company', [
  *         description: "Error"
  */
 app.patch('/company/:COMPANY_ID', [
+  // Validate and Sanitize input
   param('COMPANY_ID').not().isEmpty().trim().escape(),
   body('COMPANY_NAME').not().isEmpty().trim().escape(),
 ], async function(req, res){
 	res.header('Content-Type','application/json');
+	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() });
 	} else {
@@ -332,11 +337,13 @@ app.patch('/company/:COMPANY_ID', [
  *         description: "Error"
  */
 app.put('/company/:COMPANY_ID', [
+  // Validate and Sanitize input
   param('COMPANY_ID').not().isEmpty().trim().escape(),
   body('COMPANY_NAME').not().isEmpty().trim().escape(),
   body('COMPANY_CITY').not().isEmpty().trim().escape()
 ], async function(req, res){
     res.header('Content-Type','application/json');
+	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() });
 	} else {
@@ -382,9 +389,11 @@ app.put('/company/:COMPANY_ID', [
  *         description: "Error"
  */
 app.delete('/company/:COMPANY_ID', [
+  // Validate and Sanitize input
   param('COMPANY_ID').not().isEmpty().trim().escape()
 ], async function(req, res){
     res.header('Content-Type','application/json');
+	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() });
 	} else {
