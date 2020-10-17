@@ -8,9 +8,9 @@ const swaggerUi = require('swagger-ui-express');
 const options = {
     swaggerDefinition: {
         info: {
-            title: 'API For Swagger Test',
+            title: 'REST APIs Using Node',
             version: '1.0.0',
-            description: 'API by Pranjal for ITIS 6177 to test Swagger'
+            description: 'Node based REST APIs with MariaDB and AWS Lambda function for backend.'
         },
         host: 'localhost:3000',
         baseurl: '/'
