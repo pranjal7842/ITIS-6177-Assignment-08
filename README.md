@@ -15,18 +15,18 @@ This is a Node based app to create REST API and swagger documentation. The app u
    ```
  - Clone the repo
  - Execute below command to install node packages:
-	`$ npm install`
+	```$ npm install```
  
 ## Starting Server
 #### Starting Maria DB server
  - Open Console and navigate to the bin folder of MariaDB installation
  - Execute below command to start Maria DB server
-    `$ mysql -u root -p sample`
+    ```$ mysql -u root -p sample```
  
 #### Starting Node server
  - Open Console and navigate to local repo
  - Execute below command to start Node server
-    `$ node server.js`
+    ```$ node server.js```
  
 ## Testing the REST APIs
 Once the Node server has started use this [Swagger Link](http://localhost:3000/docs/) to test.
