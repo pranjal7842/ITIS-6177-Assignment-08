@@ -6,19 +6,24 @@ const port = 3000;
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const options = {
-  swaggerDefinition: {
-    info: {
-      title: 'API For Swagger Test',
-      version: '1.0.0',
-	  description: 'API by Pranjal for ITIS 6177 to test Swagger'
+    swaggerDefinition: {
+        info: {
+            title: 'API For Swagger Test',
+            version: '1.0.0',
+            description: 'API by Pranjal for ITIS 6177 to test Swagger'
+        },
+        host: '64.227.1.9:3000',
+        baseurl: '/'
     },
-	host: '64.227.1.9:3000',
-	baseurl: '/'
-  },
-  apis: ['./server.js'],
+    apis: ['./server.js'],
 };
 const specs = swaggerJsdoc(options);
-const { param, body, validationResult } = require('express-validator');
+const {
+    param,
+    body,
+    validationResult
+} = require('express-validator');
+const axios = require('axios');
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors());
@@ -140,6 +145,11 @@ const pool = mariadb.createPool({
  *     properties:
  *       COMPANY_NAME:
  *         type: string
+ *   SayMessage:
+ *     type: object
+ *     properties:
+ *       message:
+ *         type: string
  */
 
 /**
@@ -158,16 +168,18 @@ const pool = mariadb.createPool({
  *       500:
  *         description: "Error"
  */
-app.get('/agents', async function(req, res){
-    res.header('Content-Type','application/json');
+app.get('/agents', async function(req, res) {
+    res.header('Content-Type', 'application/json');
     let conn;
     try {
         conn = await pool.getConnection();
         const rows = await conn.query("SELECT * FROM agents");
         res.json(rows);
     } catch (err) {
-		console.log(err);
-        res.status(500).json({'error':err});
+        console.log(err);
+        res.status(500).json({
+            'error': err
+        });
     } finally {
         if (conn) return conn.end();
     }
@@ -189,16 +201,18 @@ app.get('/agents', async function(req, res){
  *       500:
  *         description: "Error"
  */
-app.get('/companies', async function(req, res){
-    res.header('Content-Type','application/json');
+app.get('/companies', async function(req, res) {
+    res.header('Content-Type', 'application/json');
     let conn;
     try {
         conn = await pool.getConnection();
         const rows = await conn.query("SELECT * FROM company");
         res.json(rows);
     } catch (err) {
-		console.log(err);
-        res.status(500).json({'error':err});
+        console.log(err);
+        res.status(500).json({
+            'error': err
+        });
     } finally {
         if (conn) return conn.end();
     }
@@ -227,30 +241,34 @@ app.get('/companies', async function(req, res){
  *         description: "Error"
  */
 app.post('/company', [
-  // Validate and Sanitize input
-  body('COMPANY_ID').not().isEmpty().trim().escape(),
-  body('COMPANY_NAME').not().isEmpty().trim().escape(),
-  body('COMPANY_CITY').not().isEmpty().trim().escape()
-], async function(req, res){
-    res.header('Content-Type','application/json');
-	// Validate and Sanitize input
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	} else {
-		let conn;
-		try {
-			conn = await pool.getConnection();
-			let req_body = req.body;
-			await conn.query("INSERT INTO company VALUES (?, ?, ?)", [req_body.COMPANY_ID, req_body.COMPANY_NAME, req_body.COMPANY_CITY]);
-			res.status(200).end();
-		} catch (err) {
-			console.log(err);
-			res.status(400).json({'error':err});
-		} finally {
-			if (conn) return conn.end();
-		}
-	}
+    // Validate and Sanitize input
+    body('COMPANY_ID').not().isEmpty().trim().escape(),
+    body('COMPANY_NAME').not().isEmpty().trim().escape(),
+    body('COMPANY_CITY').not().isEmpty().trim().escape()
+], async function(req, res) {
+    res.header('Content-Type', 'application/json');
+    // Validate and Sanitize input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array()
+        });
+    } else {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let req_body = req.body;
+            await conn.query("INSERT INTO company VALUES (?, ?, ?)", [req_body.COMPANY_ID, req_body.COMPANY_NAME, req_body.COMPANY_CITY]);
+            res.status(200).end();
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({
+                'error': err
+            });
+        } finally {
+            if (conn) return conn.end();
+        }
+    }
 });
 
 /**
@@ -281,32 +299,38 @@ app.post('/company', [
  *         description: "Error"
  */
 app.patch('/company/:COMPANY_ID', [
-  // Validate and Sanitize input
-  param('COMPANY_ID').not().isEmpty().trim().escape(),
-  body('COMPANY_NAME').not().isEmpty().trim().escape(),
-], async function(req, res){
-	res.header('Content-Type','application/json');
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	} else {
-		let conn;
-		try {
-			conn = await pool.getConnection();
-			let req_body = req.body;
-			const rows = await conn.query("UPDATE company SET COMPANY_NAME=? WHERE COMPANY_ID=?", [req_body.COMPANY_NAME, req.params.COMPANY_ID]);
-			if(rows.affectedRows == 0) {
-				res.status(400).json({'error': 'Invalid company Id supplied'});
-			} else {
-				res.status(200).end();
-			}
-		} catch (err) {
-			console.log(err);
-			res.status(500).json({'error':err});
-		} finally {
-			if (conn) return conn.end();
-		}
-	}
+    // Validate and Sanitize input
+    param('COMPANY_ID').not().isEmpty().trim().escape(),
+    body('COMPANY_NAME').not().isEmpty().trim().escape(),
+], async function(req, res) {
+    res.header('Content-Type', 'application/json');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array()
+        });
+    } else {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let req_body = req.body;
+            const rows = await conn.query("UPDATE company SET COMPANY_NAME=? WHERE COMPANY_ID=?", [req_body.COMPANY_NAME, req.params.COMPANY_ID]);
+            if (rows.affectedRows == 0) {
+                res.status(400).json({
+                    'error': 'Invalid company Id supplied'
+                });
+            } else {
+                res.status(200).end();
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({
+                'error': err
+            });
+        } finally {
+            if (conn) return conn.end();
+        }
+    }
 });
 
 /**
@@ -337,34 +361,40 @@ app.patch('/company/:COMPANY_ID', [
  *         description: "Error"
  */
 app.put('/company/:COMPANY_ID', [
-  // Validate and Sanitize input
-  param('COMPANY_ID').not().isEmpty().trim().escape(),
-  body('COMPANY_NAME').not().isEmpty().trim().escape(),
-  body('COMPANY_CITY').not().isEmpty().trim().escape()
-], async function(req, res){
-    res.header('Content-Type','application/json');
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	} else {
+    // Validate and Sanitize input
+    param('COMPANY_ID').not().isEmpty().trim().escape(),
+    body('COMPANY_NAME').not().isEmpty().trim().escape(),
+    body('COMPANY_CITY').not().isEmpty().trim().escape()
+], async function(req, res) {
+    res.header('Content-Type', 'application/json');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array()
+        });
+    } else {
         let conn;
-		try {
-			conn = await pool.getConnection();
-			let req_body = req.body;
-			const rows = await conn.query("UPDATE company SET COMPANY_NAME=?, COMPANY_CITY=? WHERE COMPANY_ID=?", 
-			[req_body.COMPANY_NAME, req_body.COMPANY_CITY, req.params.COMPANY_ID]);
-			if(rows.affectedRows == 0) {
-				res.status(400).json({'error': 'Invalid company Id supplied'});
-			} else {
-				res.status(200).end();
-			}
-		} catch (err) {
-			console.log(err);
-			res.status(500).json({'error':err});
-		} finally {
-			if (conn) return conn.end();
-		}
-	}
+        try {
+            conn = await pool.getConnection();
+            let req_body = req.body;
+            const rows = await conn.query("UPDATE company SET COMPANY_NAME=?, COMPANY_CITY=? WHERE COMPANY_ID=?",
+                [req_body.COMPANY_NAME, req_body.COMPANY_CITY, req.params.COMPANY_ID]);
+            if (rows.affectedRows == 0) {
+                res.status(400).json({
+                    'error': 'Invalid company Id supplied'
+                });
+            } else {
+                res.status(200).end();
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({
+                'error': err
+            });
+        } finally {
+            if (conn) return conn.end();
+        }
+    }
 });
 
 /**
@@ -389,31 +419,37 @@ app.put('/company/:COMPANY_ID', [
  *         description: "Error"
  */
 app.delete('/company/:COMPANY_ID', [
-  // Validate and Sanitize input
-  param('COMPANY_ID').not().isEmpty().trim().escape()
-], async function(req, res){
-    res.header('Content-Type','application/json');
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	} else {
-		let conn;
-		try {
-			conn = await pool.getConnection();
-			let req_body = req.body;
-			const rows = await conn.query("DELETE FROM company WHERE COMPANY_ID=?", [req.params.COMPANY_ID]);
-			if(rows.affectedRows == 0) {
-				res.status(400).json({'error': 'Invalid company Id supplied'});
-			} else {
-				res.status(200).end();
-			}
-		} catch (err) {
-			console.log(err);
-			res.status(500).json({'error':err});
-		} finally {
-			if (conn) return conn.end();
-		}
-	}
+    // Validate and Sanitize input
+    param('COMPANY_ID').not().isEmpty().trim().escape()
+], async function(req, res) {
+    res.header('Content-Type', 'application/json');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array()
+        });
+    } else {
+        let conn;
+        try {
+            conn = await pool.getConnection();
+            let req_body = req.body;
+            const rows = await conn.query("DELETE FROM company WHERE COMPANY_ID=?", [req.params.COMPANY_ID]);
+            if (rows.affectedRows == 0) {
+                res.status(400).json({
+                    'error': 'Invalid company Id supplied'
+                });
+            } else {
+                res.status(200).end();
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({
+                'error': err
+            });
+        } finally {
+            if (conn) return conn.end();
+        }
+    }
 });
 
 /**
@@ -432,16 +468,18 @@ app.delete('/company/:COMPANY_ID', [
  *       500:
  *         description: "Error"
  */
- app.get('/customers', async function(req, res){
-    res.header('Content-Type','application/json');
+app.get('/customers', async function(req, res) {
+    res.header('Content-Type', 'application/json');
     let conn;
     try {
         conn = await pool.getConnection();
         const rows = await conn.query("SELECT * FROM customer");
         res.json(rows);
     } catch (err) {
-		console.log(err);
-        res.status(500).json({'error':err});
+        console.log(err);
+        res.status(500).json({
+            'error': err
+        });
     } finally {
         if (conn) return conn.end();
     }
@@ -463,19 +501,66 @@ app.delete('/company/:COMPANY_ID', [
  *       500:
  *         description: "Error"
  */
- app.get('/students', async function(req, res){
-    res.header('Content-Type','application/json');
+app.get('/students', async function(req, res) {
+    res.header('Content-Type', 'application/json');
     let conn;
     try {
         conn = await pool.getConnection();
         const rows = await conn.query("SELECT * FROM student");
         res.json(rows);
     } catch (err) {
-		console.log(err);
-        res.status(500).json({'error':err});
+        console.log(err);
+        res.status(500).json({
+            'error': err
+        });
     } finally {
         if (conn) return conn.end();
     }
+});
+
+/**
+ * @swagger
+ * /say:
+ *   get:
+ *     description: Returns response from AWS Lambda function
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: keyword
+ *         description: What you want AWS Lambda function to say?
+ *         in:  query
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: "Successful Operation"
+ *         schema:
+ *           $ref: '#/definitions/SayMessage'
+ *       500:
+ *         description: "Error"
+ */
+app.get('/say', async function(req, res) {
+	res.header('Content-Type', 'application/json');
+	let lambda_url = "https://djzuh8moki.execute-api.us-east-2.amazonaws.com/default/my-function?keyword=" + req.query.keyword;
+	//lambda_url = "https://djzuh8moki.execute-api.us-east-2.amazonaws.com/default/my-function";
+    // Make a request to AWS Lambda function
+    axios.get(lambda_url)
+        .then(function(lambda_res) {
+            // handle success
+			res_message = lambda_res.data;
+            console.log("AWS Lambda Function Response:" + res_message);
+			res.json({
+				"message": res_message
+			});
+        })
+        .catch(function(err) {
+			// handle error
+            console.log(err);
+            res.status(500).send(err);
+        })
+        .then(function() {
+            // always executed
+        });
 });
 
 app.listen(port, () => {
