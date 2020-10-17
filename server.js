@@ -12,7 +12,7 @@ const options = {
             version: '1.0.0',
             description: 'API by Pranjal for ITIS 6177 to test Swagger'
         },
-        host: '64.227.1.9:3000',
+        host: 'localhost:3000',
         baseurl: '/'
     },
     apis: ['./server.js'],
